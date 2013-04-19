@@ -1,5 +1,5 @@
 import unittest
-from flask import Flask, views
+from flask import Flask, views, redirect
 from flask.signals import got_request_exception, signals_available
 from mock import Mock
 import flask
@@ -10,7 +10,7 @@ import flask_restful.fields
 from flask_restful import OrderedDict
 from json import dumps, loads
 #noinspection PyUnresolvedReferences
-from nose.tools import assert_equals # you need it for tests in form of continuations
+from nose.tools import assert_equals, assert_true # you need it for tests in form of continuations
 
 def check_unpack(expected, value):
     assert_equals(expected, value)
@@ -28,6 +28,20 @@ class HelloWorld(flask_restful.Resource):
         return {}
 
 class APITestCase(unittest.TestCase):
+
+    def test_redirect(self):
+
+        class RedirectApi(flask_restful.Resource):
+            def get(self):
+                return redirect('/foo')
+
+        app = Flask(__name__)
+        api = flask_restful.Api()
+        api.init_app(app)
+        api.add_resource(RedirectApi, '/hello/')
+        app = app.test_client()
+        resp = app.get("/hello")
+        assert_true('Location' in resp.headers)
 
     def test_http_code(self):
         self.assertEquals(http_status_message(200), 'OK')
