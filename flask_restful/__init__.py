@@ -5,7 +5,7 @@ from flask import request, Response, url_for
 from flask import abort as original_flask_abort
 from flask.views import MethodView
 from flask.signals import got_request_exception
-from werkzeug.exceptions import HTTPException, MethodNotAllowed, NotFound
+from werkzeug.exceptions import MethodNotAllowed, NotFound
 from werkzeug.http import HTTP_STATUS_CODES
 from flask.ext.restful.utils import unauthorized, error_data, unpack
 from flask.ext.restful.representations.json import output_json
@@ -25,12 +25,7 @@ def abort(http_status_code, **kwargs):
     arguments to the exception for later processing.
     """
     #noinspection PyUnresolvedReferences
-    try:
-        original_flask_abort(http_status_code)
-    except HTTPException as e:
-        if len(kwargs):
-            e.data = kwargs
-        raise e
+    original_flask_abort(http_status_code, **kwargs)
 
 DEFAULT_REPRESENTATIONS = {'application/json': output_json}
 
@@ -268,7 +263,7 @@ class Api(object):
     def url_for(self, resource, **values):
         """Generates a URL to the given resource."""
         return url_for(resource.endpoint, **values)
-        
+
     def make_response(self, data, *args, **kwargs):
         """Looks up the representation transformer for the requested media
         type, invoking the transformer to create a response object. This

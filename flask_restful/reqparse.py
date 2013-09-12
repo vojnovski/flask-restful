@@ -93,7 +93,7 @@ class Argument(object):
         :param error: the error that was raised
         """
         msg = self.help if self.help is not None else str(error)
-        flask_restful.abort(400, message=msg)
+        flask_restful.abort(400, description=msg)
 
     def parse(self, request):
         """Parses argument value(s) from the request, converting according to
